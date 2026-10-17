@@ -1,0 +1,61 @@
+{
+  "name": "the-brokers-terminal",
+  "productName": "The Brokers Terminal",
+  "version": "1.3.3",
+  "description": "The Brokers Terminal for desktop",
+  "main": "main.js",
+  "author": "Colossus Financial Ltd",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "electron-builder --mac --arm64 --x64",
+    "dist:win": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.thebrokersterminal.desktop",
+    "productName": "The Brokers Terminal",
+    "copyright": "Colossus Financial Ltd",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "offline-store.js",
+      "warm.js",
+      "offline.html",
+      "build/icon.png"
+    ],
+    "mac": {
+      "category": "public.app-category.finance",
+      "icon": "build/icon.png",
+      "target": [
+        "dmg"
+      ],
+      "darkModeSupport": true,
+      "identity": null
+    },
+    "dmg": {
+      "title": "The Brokers Terminal",
+      "backgroundColor": "#1a1a1a"
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "shortcutName": "The Brokers Terminal"
+    },
+    "afterPack": "build/adhoc-sign.js"
+  },
+  "devDependencies": {
+    "electron": "^44.8.0",
+    "electron-builder": "^26.15.3"
+  }
+}

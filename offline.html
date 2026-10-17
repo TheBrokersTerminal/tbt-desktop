@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; script-src 'unsafe-inline'">
+<title>The Brokers Terminal</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { background: #1a1a1a; color: #fff; font: 15px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; display: flex; align-items: center; justify-content: center; }
+  main { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; padding: 24px; max-width: 420px; }
+  img { width: 56px; height: 56px; }
+  h1 { margin: 6px 0 0; font-size: 22px; font-weight: 600; }
+  p { margin: 0; }
+  button { margin-top: 10px; background: #E97132; color: #fff; border: 0; font: 600 14px "Helvetica Neue", Helvetica, Arial, sans-serif; padding: 11px 22px; cursor: pointer; }
+  button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  small { font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <img src="build/icon.png" alt="">
+  <h1>The terminal can't connect</h1>
+  <p>Check your internet connection. The terminal will try again on its own every 15 seconds.</p>
+  <button type="button" id="retry">Try again now</button>
+  <small id="when"></small>
+</main>
+<script>
+  var to = new URLSearchParams(location.search).get('to') || 'https://thebrokersterminal.com/dashboard.html';
+  if (!/^https:\/\/(www\.)?thebrokersterminal\.com\//.test(to)) to = 'https://thebrokersterminal.com/dashboard.html';
+  function go() { location.href = to; }
+  document.getElementById('retry').addEventListener('click', go);
+  window.addEventListener('online', go);
+  setInterval(go, 15000);
+</script>
+</body>
+</html>
