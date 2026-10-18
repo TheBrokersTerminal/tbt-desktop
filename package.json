@@ -1,7 +1,7 @@
 {
   "name": "the-brokers-terminal",
   "productName": "The Brokers Terminal",
-  "version": "1.3.3",
+  "version": "1.4.0",
   "description": "The Brokers Terminal for desktop",
   "main": "main.js",
   "author": "Colossus Financial Ltd",
@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "dist:mac": "electron-builder --mac --arm64 --x64",
+    "dist:mac": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac --arm64 --x64 --publish never",
     "dist:win": "electron-builder --win --x64"
   },
   "build": {
@@ -26,16 +26,19 @@
       "offline-store.js",
       "warm.js",
       "offline.html",
-      "build/icon.png"
+      "build/icon.png",
+      "package.json"
     ],
     "mac": {
       "category": "public.app-category.finance",
       "icon": "build/icon.png",
       "target": [
-        "dmg"
+        "dmg",
+        "zip"
       ],
       "darkModeSupport": true,
-      "identity": null
+      "artifactName": "The-Brokers-Terminal-Mac-${arch}.${ext}",
+      "hardenedRuntime": true
     },
     "dmg": {
       "title": "The Brokers Terminal",
@@ -45,17 +48,29 @@
       "icon": "build/icon.png",
       "target": [
         "nsis"
-      ]
+      ],
+      "artifactName": "The-Brokers-Terminal-Setup.${ext}"
     },
     "nsis": {
       "oneClick": true,
       "perMachine": false,
       "shortcutName": "The Brokers Terminal"
     },
-    "afterPack": "build/adhoc-sign.js"
+    "afterPack": "build/adhoc-sign.js",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "GITHUB_OWNER",
+        "repo": "tbt-desktop",
+        "releaseType": "release"
+      }
+    ]
   },
   "devDependencies": {
     "electron": "^44.8.0",
     "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
   }
 }

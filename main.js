@@ -127,6 +127,20 @@ function buildMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
+/* AUTOMATIC UPDATES (18 Oct 2026). Installed copies check the download page for a newer version at start and every six
+   hours, download it in the background and install it when the app is next closed, so a new icon or name reaches
+   everyone without a fresh download. Only in installed copies (not when run from this folder). On a Mac the update has
+   to carry the same signature as the installed copy: the first Developer ID release replaces the unsigned test copies once. */
+function updates() {
+  if (!app.isPackaged) return;
+  let U; try { U = require('electron-updater').autoUpdater; } catch (e) { return; }
+  U.autoDownload = true; U.autoInstallOnAppQuit = true;
+  U.on('update-downloaded', (info) => { try { new Notification({ title: 'The Brokers Terminal', body: 'Version ' + info.version + ' is ready. It installs the next time you close the app.' }).show(); } catch (e) {} });
+  U.on('error', (e) => console.warn('[updates]', e && e.message));
+  const check = () => U.checkForUpdates().catch(() => {});
+  setTimeout(check, 15000); setInterval(check, 6 * 3600 * 1000);
+}
+
 /* one copy of the app at a time: a second launch brings the open window forward */
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -145,6 +159,7 @@ if (!app.requestSingleInstanceLock()) {
     buildMenu();
     createMain();
     warm.schedule();   /* the daily background download for offline use */
+    updates();   /* new versions download quietly and install the next time the app is closed */
     app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createMain(); });
   });
   app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

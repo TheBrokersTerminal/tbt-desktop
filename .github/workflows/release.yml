@@ -1,0 +1,48 @@
+# RELEASE (18 Oct 2026). Push a version tag (git tag v1.4.0 && git push --tags) or press "Run workflow" on the Actions tab:
+# GitHub's own free Mac and Windows machines build both installers and publish them on this repository's Releases page,
+# which is the download page and the update feed the installed apps check.
+# Mac: signed and notarised automatically once these repository secrets exist (Settings → Secrets → Actions):
+#   CSC_LINK (the Developer ID Application certificate, .p12 as base64), CSC_KEY_PASSWORD,
+#   APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID. Without them the Mac build is unsigned (test only).
+# Windows: unsigned until a code-signing certificate is added (WIN_CSC_LINK, WIN_CSC_KEY_PASSWORD).
+name: Release
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Mac (signed and notarised when the Apple secrets are set)
+        if: runner.os == 'macOS'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        shell: bash
+        run: |
+          if [ -n "$CSC_LINK" ]; then npx electron-builder --mac --arm64 --x64 -c.mac.notarize=true --publish always;
+          else CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --arm64 --x64 --publish always; fi
+      - name: Windows
+        if: runner.os == 'Windows'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        shell: bash
+        run: npx electron-builder --win nsis --x64 --publish always
