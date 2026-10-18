@@ -15,6 +15,7 @@ permissions:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
@@ -37,7 +38,7 @@ jobs:
         shell: bash
         run: |
           if [ -n "$CSC_LINK" ]; then npx electron-builder --mac --arm64 --x64 -c.mac.notarize=true --publish always;
-          else CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --arm64 --x64 --publish always; fi
+          else unset CSC_LINK CSC_KEY_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --arm64 --x64 --publish always; fi
       - name: Windows
         if: runner.os == 'Windows'
         env:
@@ -45,4 +46,6 @@ jobs:
           CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
         shell: bash
-        run: npx electron-builder --win nsis --x64 --publish always
+        run: |
+          if [ -z "$CSC_LINK" ]; then unset CSC_LINK CSC_KEY_PASSWORD; fi   # empty secrets would be read as a certificate path
+          npx electron-builder --win nsis --x64 --publish always
