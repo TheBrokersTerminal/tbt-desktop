@@ -60,7 +60,7 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "GITHUB_OWNER",
+        "owner": "TheBrokersTerminal",
         "repo": "tbt-desktop",
         "releaseType": "release"
       }

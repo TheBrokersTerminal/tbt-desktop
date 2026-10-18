@@ -9,3 +9,8 @@ The terminal itself is not bundled: every update published to the website reache
 - Set `CSC_IDENTITY_AUTO_DISCOVERY=false` for unsigned test builds.
 
 Before public release: Apple Developer ID signing + notarisation (Mac), a Windows code-signing certificate, and an update channel for the app shell.
+
+## Releases (from 18 Oct 2026)
+Downloads and automatic updates come from this repository's Releases page. To release: raise `version` in package.json,
+commit, then `git tag v<version> && git push && git push --tags`. GitHub builds the Mac and Windows installers
+(.github/workflows/release.yml) and publishes them; installed apps update themselves.
