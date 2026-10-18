@@ -13,7 +13,14 @@ on:
 permissions:
   contents: write
 jobs:
+  release:   # one release first, so the Mac and Windows builds add to the same one (18 Oct 2026: they once made two)
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --title "${GITHUB_REF_NAME#v}" --notes "The Brokers Terminal ${GITHUB_REF_NAME#v} for Mac and Windows."
   build:
+    needs: release
     strategy:
       fail-fast: false
       matrix:
